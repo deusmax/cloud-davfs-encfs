@@ -1,0 +1,17 @@
+
+* Introduction
+
+  Encode your data with =EncFs= and upload it, encoded, to the cloud using =WebDAV=.
+
+  The command cloud-davfs-encfs, encrypts your data using =Encfs=, setup a =WebDAV=
+  connection with your cloude provider and upload the encrypted data. All your cloud
+  data will be always encrypted. The un-encrypted files always stay on your local
+  machine(s). Only you have the encfs password.
+
+  By using an easy to remember unique identifier, multiple cloud instances and cloud
+  providers can be used, independently. But the mechanics and operation remains the
+  same. =Cloud-davfs-enfs= will create a new tree structure for each identifier.
+
+  This is a bash script that wraps around to sync your files and data encoded to the
+  cloud. It sets-up the =WebDAV= connection with your cloud provider and encrypts your
+  data using =Encfs=.
