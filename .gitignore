@@ -5,6 +5,7 @@
 *.elc
 
 # misc
+devel.org
 README.html
 scratch.txt
 *test*

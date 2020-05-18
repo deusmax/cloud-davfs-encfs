@@ -1,9 +1,13 @@
-# Sample configuration for syncing the sample local org and ledger paths.
+# Sample configuration for syncing with unison.
 #
+# org and ledger paths are used here only as as sample.
 # Default CLOUD_ROOT=~/cloud is used and the cloudname is exam.
 # Add or remove paths as needed.
 # ignore git directories, if any.
 # Merge configuration only useful if using Emacs.
+#
+# rename this file to something meaningful and place in your .unison directory
+# 
 
 
 # Unison preferences
@@ -20,7 +24,7 @@ ignore = Name #*
 # make sure is mounted
 mountpoint = org
 
-# Sync paths
+# Sync paths, use your own
 path = org
 path = ledger
 

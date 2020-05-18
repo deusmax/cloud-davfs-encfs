@@ -1,7 +1,7 @@
 #+options: ':nil *:t -:t ::t <:t H:4 \n:nil ^:{} arch:headline author:t
 #+options: broken-links:nil c:nil creator:nil d:(not "LOGBOOK") date:t e:t
 #+options: email:nil f:t inline:t p:nil pri:nil prop:nil stat:t tags:nil
-#+options: tasks:nil tex:t timestamp:t title:t toc:t todo:t |:t
+#+options: tasks:nil tex:t timestamp:t title:t toc:t todo:nil |:t
 #+title: Cloud Davfs Encfs, README
 #+date: <2020-05-16 Sat>
 #+author: Deus Max
@@ -29,13 +29,13 @@
 
 * Introduction
 
-  Your cloud data, which is synced with =WebDAV=, encoded with =EncFs=.
+  Your cloud data, synced with =WebDAV= and encoded with =EncFs=.
 
-  =cloud-davfs-encfs= makes it easy create and manage your cloud
-  connections for your encoded files.
+  =cloud-davfs-encfs= makes it easy create and manage your cloud connections for
+  your encoded files.
 
   The command cloud-davfs-encfs, encrypts your data using =Encfs= and uses a
-  =WebDAV= connection with your cloud provider for uploading and syncing the
+  =WebDAV= connection to your cloud provider for uploading and syncing the
   *encrypted data* to the =encoded= directory. Only you have the encfs password.
 
   By using an easy to remember unique identifier, multiple cloud instances and cloud
@@ -46,8 +46,9 @@
   =encoded= directory.
 
   Since it is probably a good idea to keep a local copy of the cloud data, sync
-  functionality using [[https://github.com/bcpierce00/unison][unison]] this available (with some setup). A unison sample
-  template is provided.
+  functionality is encouraged (with some setup). [[https://github.com/bcpierce00/unison][Unison]] is a good bidirectional
+  file synchronizer, recommended. A unison sample template is provided. You may use
+  another file synchronization tool of your choice.
 
   This is a bash script that wraps around to sync your files and data encoded to the
   cloud. It sets-up the =WebDAV= connection with your cloud provider and encrypts your
@@ -55,7 +56,8 @@
 
 * Prerequisites
 
-  Most prerequisites are provided by most Linux distributions. These are:
+  The prerequisites are provided by most Linux distributions. Nothing fancy here.
+  These are:
   - bash shell.
   - [[https://www.kernel.org/pub/linux/utils/util-linux/][util-linux]] for =mountpoint=.
   - =sudo=.
@@ -63,18 +65,20 @@
   - [[https://vgough.github.io/encfs/][encfs]].
   - [[https://github.com/bcpierce00/unison][unison]]. Optional, you may use another tool for file synchronization.
 
-   Install the needed libraries using your distribution's  package manager or
-   directly from source.
+  Install the needed libraries using your distribution's  package manager or
+  directly from source.
 
-   To configure =davfs2=, make sure to:
-   - add your user to the =davfs2= group. You may hate to first create the =davfs2=
-     group.
-   - add the cloud mount-point, cloud-username and password to the
-     =~/.davfs2/secrets= file. See below section on [[id:1454669b-05f7-4398-ba74-6f02f5e930d4][layout]] for the cloud mount point.
+  To configure =davfs2=, make sure to:
+  - add your user to the =davfs2= group. You may hate to first create the =davfs2=
+    group.
+  - check your =http= proxy configuration, if needed. The system will work with
+    correct proxy setup.
+  - add the cloud mount-point, cloud-username and password to the
+    =~/.davfs2/secrets= file. See below section on [[id:1454669b-05f7-4398-ba74-6f02f5e930d4][layout]] for the cloud mount point.
 
 * Installation
 
-  To install, download the archive or clone the repository. Make sure the
+  Download and uncompress the archive file or clone the repository. Make sure the
   =cloud-davfs-encfs.sh= is executable and create a link to it, with a name like
   =cdectl=. The link should be within the shell path.
 
@@ -84,27 +88,28 @@
     # cd to your local path, such as ~/.local/bin or ~/bin
     cd ~/bin
 
-    # create symbolic link
+    # create symbolic link, cdectl
     ln -s path/to/executable/cloud-davfs-encfs.sh cdectl
   #+end_src
 
 * Usage
 
   The general command follows a =systemd=-type pattern of:
-  : cloud-davfs action [cloudname]
+  : cdectl action [cloudname]
   where:
-  - =cloud-davfs= : is the executable.
-  - =action= : specifies the action to be taken.
-  - =cloudname= : is usually the identifier for the cloud instance, with some
+  - =cdectl= : the command name from the installation.
+  - =action= : specifies action to be taken.
+  - =cloudname= : usually the identifier for the cloud instance, with some
     exceptions:
     - some actions do not need it
-    - it has a different meaning for the =create= action.
+    - has a different meaning for the =create= action.
 
   The =cloudname= identifier should be easy to memorize, but characteristic enough
-  to clearly distinguish your cloud instances. As a rule-of-thumb, they should be
-  between 3-4 characters long (a recommendation, not a rule). Avoid, using things
-  like: =cloud01=, =cloud02=, =nextcloudoffice=, etc. which have no meaning. Prefer
-  (short) cloudnames that make sense to you. Should be a good directory name.
+  to clearly distinguish your cloud instances. Perhaps, as a decent rule-of-thumb,
+  should be between 3-4 characters long. Avoid, using things like: =cloud01=,
+  =cloud02=, =nextcloudofficenew=, etc. which have no meaning or are too long.
+  Prefer (short) =cloudnames= that make sense to you. Should be good as a directory
+  names.
 
 ** Layout
    :PROPERTIES:
@@ -223,20 +228,12 @@
 
    The above sample is available in [[file:sample.conf]].
 
-***
-
 * License
 
   GPLv3 or later.
-
-* Development                                              :noexport:comment:
-** TODO Create a sync function
-** TODO Create a config function
-   To show the configuration values for each cloudname.
-
 
 * Emacs                                                    :comment:noexport:
 
 #  LocalWords:  cloudname config TODO EncFs WebDAV backend davfs encfs mountpoint
 #  LocalWords:  sudo cdectl src mkdir systemd webdav cloudfiles synchronizer prf
-#  LocalWords:  GPLv noexport
+#  LocalWords:  GPLv noexport uncompress
