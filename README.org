@@ -46,13 +46,12 @@
   =encoded= directory.
 
   Since it is probably a good idea to keep a local copy of the cloud data, sync
-  functionality is encouraged (with some setup). [[https://github.com/bcpierce00/unison][Unison]] is a good bidirectional
-  file synchronizer, recommended. A unison sample template is provided. You may use
-  another file synchronization tool of your choice.
+  functionality is encouraged (with some setup). [[https://github.com/bcpierce00/unison][Unison]] is a good bidirectional file
+  synchronizer, recommended. A unison sample template is provided. Of course, you
+  may use another file synchronization tool of your choice.
 
-  This is a bash script that wraps around to sync your files and data encoded to the
-  cloud. It sets-up the =WebDAV= connection with your cloud provider and encrypts your
-  data using =Encfs=.
+  This is a bash shell-script that coordinates the needed actions to handle your
+  encrypted cloud data.
 
 * Prerequisites
 
@@ -63,13 +62,14 @@
   - =sudo=.
   - [[http://savannah.nongnu.org/projects/davfs2][davfs2]].
   - [[https://vgough.github.io/encfs/][encfs]].
-  - [[https://github.com/bcpierce00/unison][unison]]. Optional, you may use another tool for file synchronization.
+  - [[https://github.com/bcpierce00/unison][unison]], optional. Youo may use another tool of your choice for file
+    synchronization.
 
-  Install the needed libraries using your distribution's  package manager or
-  directly from source.
+  Install the needed libraries using your distribution's package manager or directly
+  from source.
 
   To configure =davfs2=, make sure to:
-  - add your user to the =davfs2= group. You may hate to first create the =davfs2=
+  - add your user to the =davfs2= group. You may have to first create the =davfs2=
     group.
   - check your =http= proxy configuration, if needed. The system will work with
     correct proxy setup.
@@ -83,7 +83,7 @@
   =cdectl=. The link should be within the shell path.
 
   #+begin_src shell
-    mkdir +x cloud-davfs-encfs.sh
+    chmod +x cloud-davfs-encfs.sh
 
     # cd to your local path, such as ~/.local/bin or ~/bin
     cd ~/bin
@@ -94,7 +94,7 @@
 
 * Usage
 
-  The general command follows a =systemd=-type pattern of:
+  The general command follows a =systemd= style pattern of:
   : cdectl action [cloudname]
   where:
   - =cdectl= : the command name from the installation.
@@ -108,8 +108,8 @@
   to clearly distinguish your cloud instances. Perhaps, as a decent rule-of-thumb,
   should be between 3-4 characters long. Avoid, using things like: =cloud01=,
   =cloud02=, =nextcloudofficenew=, etc. which have no meaning or are too long.
-  Prefer (short) =cloudnames= that make sense to you. Should be good as a directory
-  names.
+  Prefer (short) =cloudnames= that make sense to you. Should also be good for use as
+  a directory names.
 
 ** Layout
    :PROPERTIES:
@@ -124,11 +124,19 @@
    using the defaults the directory =DIR_CLOUDNAME= would be =~/cloud/exam=.
 
    The remote cloud directory, usually named =FILES= or similar, is mounted at the
-   =webdav= mount-point= as =$DIR_CLOUDNAME/webdav=. Under the =webdav= mount-point, a
+   =webdav= mount-point as =$DIR_CLOUDNAME/webdav=. Under the =webdav= mount-point, a
    directory is set for the encoded files as =$DIR_CLOUDNAME/webdav/encoded=. The
    encoded files are mounted, using EncFs, to =$DIR_CLOUDNAME/cloudfiles=.
 
 ** Actions
+
+   Defined actions are:
+   1. =createb=
+   2. =status=
+   3. =start=
+   4. =stop=
+   5. =list= or =ls=
+   6. =sync=
 
 *** Create
 
@@ -137,11 +145,12 @@
 
     : cdectl create file.config
 
-    Where =file.config= is the full or relative path to the configuration file. The
-    path of this file is not important. See [[id:3048b8c1-b8ec-4be9-bb25-66b5fc5342e9][configuration file]] section for details.
+    where =file.config= is the full or relative path to the configuration file. The
+    path of this file is not important. See [[id:3048b8c1-b8ec-4be9-bb25-66b5fc5342e9][configuration file]] section for details
+    on =file.config=.
 
     The =create= action will:
-    1. check that the provided =cloudname= is not used.
+    1. check the provided =cloudname= is not already used.
     2. place a new configuration file in the proper location.
     3. add an entry to =/etc/fstab= for mounting the =wedbav= instance. This
        requires root privileges with =sudo=.
@@ -154,8 +163,7 @@
     : cdectl start cloudname
 
     This action connects the cloud files, decodes them and mounts them to the
-    =$DIR_CLOUDNAME/cloudfiles= directory. Any error messages will show if something
-    went wrong.
+    =$DIR_CLOUDNAME/cloudfiles= directory.
 
 *** Stop
 
@@ -175,8 +183,7 @@
 
     Note, the =davfs2= backend will:
     1. refuse to close the connection when the =webdav= is active.
-    2. wait for cache synchronization to finish when closing the =webdav=
-       connection.
+    2. wait for cache synchronization when closing the =webdav= connection.
 
 *** List
 
@@ -199,19 +206,17 @@
     : cdectl sync cloudname
 
     The file synchronization should take place between the decoded files at
-    =$DIR_CLOUDNAME/cloudfiles= to a local location.
+    =$DIR_CLOUDNAME/cloudfiles= and a local location.
 
 ** The configuration file
    :PROPERTIES:
    :ID:       3048b8c1-b8ec-4be9-bb25-66b5fc5342e9
    :END:
 
-   The configuration file should be a simple shell-syntax file with the following
-   information:
-
+   The configuration file uses a simple shell-syntax for setting shell variables:
    #+begin_src shell
      # Use Unix shell syntax.
-     # Variable names as shown, do not change.
+     # Change the value assignd to the variables as needed.
 
      # The webdav remote path depends on your cloud provider.
      # Consult the cloud provider documentation.
@@ -230,10 +235,10 @@
 
 * License
 
-  GPLv3 or later.
+  GPLv3 or later. No warranties made.
 
 * Emacs                                                    :comment:noexport:
 
 #  LocalWords:  cloudname config TODO EncFs WebDAV backend davfs encfs mountpoint
 #  LocalWords:  sudo cdectl src mkdir systemd webdav cloudfiles synchronizer prf
-#  LocalWords:  GPLv noexport uncompress
+#  LocalWords:  GPLv noexport uncompress LocalWords
