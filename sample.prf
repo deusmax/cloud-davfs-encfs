@@ -1,0 +1,32 @@
+# Sample configuration for syncing the sample local org and ledger paths.
+#
+# Default CLOUD_ROOT=~/cloud is used and the cloudname is exam.
+# Add or remove paths as needed.
+# ignore git directories, if any.
+# Merge configuration only useful if using Emacs.
+
+
+# Unison preferences
+fat = true
+label = Sync to Nextcloud instance
+root = /home/username/Documents/
+root = /home/username/cloud/exam/cloudfiles
+
+# ignore
+ignore = Name *~
+ignore = Name .*~
+ignore = Name #*
+
+# make sure is mounted
+mountpoint = org
+
+# Sync paths
+path = org
+path = ledger
+
+ignore = Path {ledger/.git}
+
+# Use emacs for merging
+merge = Name *.{txt,org,php,cl,lisp,el,sh,ledger} -> if [ CURRENTARCHOPTx = x ] ; then emacs -q --eval '(ediff-merge-files "CURRENT1" "CURRENT2" nil "NEW")' ; else emacs -q --eval '(ediff-merge-files-with-ancestor "CURRENT1" "CURRENT2" "CURRENTARCHOPT" nil "NEW")' ; fi
+
+
