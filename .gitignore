@@ -1,0 +1,10 @@
+# backup, bytecode
+*~
+*.bkp
+*.orig
+*.elc
+
+# misc
+README.html
+scratch.txt
+*test*

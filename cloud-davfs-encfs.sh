@@ -15,7 +15,6 @@ whereis mount |grep -q davfs || (echo "Error: can not find required 'davfs2'" &&
 CLOUD_ROOT=~/cloud
 readonly FMT_FSTAB="%s %s davfs user,rw,noauto,_netdev 0 0"
 readonly ETCFSTAB=/etc/fstab
-#readonly ETCFSTAB=~/Documents/foo/fstab
 
 readonly WEBDAV_MPOINT_NAME=webdav
 readonly CLOUD_ENCFS_NAME=encoded
@@ -282,7 +281,7 @@ case "$ACTION" in
         exit $?
         ;;
     statusall) cloud-status-all ; exit ;;
-    list )     cloud-list       ; exit ;;
+    list|ls )  cloud-list       ; exit ;;
     *)                          # continue
 esac
 
