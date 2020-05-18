@@ -5,7 +5,10 @@
 
 # check prerequisites are available
 command -v encfs >/dev/null  || (echo "Error: can not find required 'encfs'"  && exit 5)
-whereis mount |grep -q davfs || (echo "Error: can not find required 'davfs2'" && exit 5)
+[ -e /usr/sbin/mount.davfs ] ||
+    [ -e /sbin/mount.davfs ] ||
+    whereis mount |grep -q davfs ||
+    (echo "Error: can not find required 'davfs2'" && exit 5)
 
 
 # Basic top-level configuration items here.
@@ -121,8 +124,11 @@ function in_cloudall () {
 
 function read-conf-file () {
     local fconf="$1"
+    local cloudn
 
-    [ -z "$fconf" ] && fconf="$CLOUD_ROOT/$CLOUDNAME/$CONF_FILE_NAME"
+    [ -z "$fconf" ] &&
+        fconf="$CLOUD_ROOT/$CLOUDNAME/$CONF_FILE_NAME"  &&
+        cloudn="$CLOUDNAME"
 
     WEBDAV_REMOTE_PATH=
     CLOUDNAME=
@@ -137,6 +143,14 @@ function read-conf-file () {
     #
     # check the configuration is valid
     #
+    # identifier mismatch
+    if [[ -n "$cloudn" && "$CLOUDNAME" != "$cloudn" ]] ; then
+        echo   "Error: identifier mismatch"
+        printf "       '%s' given as argument\n"   "$cloudn"
+        printf "       '%s' read in config file\n" "$CLOUDNAME"
+        exit 20
+    fi
+    # paths not set
     if [[ -z "$WEBDAV_REMOTE_PATH" || -z "$CLOUDNAME" ]] ; then
         echo "Error: something wrong with definitions"
         printf "    File: %s\n, WEBDAV_REMOTE_PATH: %s\nCLOUDNAME: %s\n" \
@@ -310,22 +324,55 @@ function cloud-stop () {
     cloud-umount-webdav
 }
 
-function cloud-status () {
+function cloud-status-webdav () {
     if mountpoint -q "$WEBDAV_MPOINT" ; then
         printf "webdav-%s mounted\n" $CLOUDNAME
     else
         printf "webdav-%s NOT mounted\n" $CLOUDNAME
+        return 1
     fi
+}
 
+function cloud-status-encfs () {
     if mountpoint -q "$DIR_CLOUD_ENC_MP" ; then
         printf "encfs-%s mounted\n" $CLOUDNAME
     else
         printf "encfs-%s NOT mounted\n" $CLOUDNAME
+        return 1
     fi
 }
 
-read-conf-file "$CLOUD_ROOT/$CLOUDNAME/$CONF_FILE_NAME"
+function cloud-status () {
+    cloud-status-webdav
+    cloud-status-encfs
+}
+
+function cloud-sync () {
+    if ! cloud-status-encfs ; then
+        printf "Error: can not sync %s\n" $CLOUDNAME
+        exit 36
+    fi
+
+    if [ -z "$SYNC_CMD" ] ; then
+        printf "Error: sync command not defined '%s'\n" "$SYNC_CMD"
+        exit 41
+    fi
+
+    $SYNC_CMD
+}
+
+function cloud-config-show () {
+    if [ -f "$CONF_FILE_PATH" ] ; then
+        cat "$CONF_FILE_PATH"
+    else
+        printf "Error: missing config file '%s'\n" "$CONF_FILE_PATH"
+        exit 38
+    fi
+}
+
+read-conf-file
 cloud-definitions
+
 
 #
 # Actions that need CLOUDNAME defined
@@ -334,6 +381,8 @@ case "$ACTION" in
     start ) cloud-start  ;;
     stop  ) cloud-stop   ;;
     status) cloud-status ;;
+    sync  ) cloud-sync   ;;
+    config-show) cloud-config-show ;;
     *) echo "Error: invalid action '$ACTION'"
        exit 2
 esac
