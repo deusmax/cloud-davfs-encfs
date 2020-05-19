@@ -62,7 +62,7 @@
   - =sudo=.
   - [[http://savannah.nongnu.org/projects/davfs2][davfs2]].
   - [[https://vgough.github.io/encfs/][encfs]].
-  - [[https://github.com/bcpierce00/unison][unison]], optional. Youo may use another tool of your choice for file
+  - [[https://github.com/bcpierce00/unison][unison]], optional. You may use another tool of your choice for file
     synchronization.
 
   Install the needed libraries using your distribution's package manager or directly
@@ -208,6 +208,8 @@
     The file synchronization should take place between the decoded files at
     =$DIR_CLOUDNAME/cloudfiles= and a local location.
 
+    By default, this action is disabled as it requires to be set-up by the user.
+
 ** The configuration file
    :PROPERTIES:
    :ID:       3048b8c1-b8ec-4be9-bb25-66b5fc5342e9
@@ -225,10 +227,12 @@
      # provide an identifier
      CLOUDNAME=exam
 
-     # the command for a bi-directional syncing with the local files.
-     # This example uses the unison synchronizer. The synchronization
-     # details are in the .prf file.
-     SYNC_CMD='unison example.prf'
+     # Command for bi-directional syncing with the local files.
+     # See example using the unison synchronizer, with the synchronization
+     # details in the .prf file.
+     # By default this command is disabled, as it requires setup by the user.
+     # SYNC_CMD='unison example.prf'
+     SYNC_CMD='echo "Sync disabled"; exit'
    #+end_src
 
    The above sample is available in [[file:sample.conf]].
