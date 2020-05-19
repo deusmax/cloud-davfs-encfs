@@ -198,6 +198,13 @@
     It will not do any checks, such as check if the cloud instances are active, have
     the correct layout, etc.
 
+*** Config-show
+
+    The =config-show= action will print the contents of the configuration file.
+    The format is:
+
+    : cdectl config-show cloudname
+
 *** Sync
 
     The =sync= action will run the file synchronization command given in the
