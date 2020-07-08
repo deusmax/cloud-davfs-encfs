@@ -28,10 +28,11 @@ WEBDAV_REMOTE_PATH=""
 
 #
 # Script starts here.
-# Do no modify, unless you know what you are doing.
+# Do not modify, unless you know what you are doing.
 #
 CLOUD_ROOT=$(realpath $CLOUD_ROOT)
-readonly -a CLOUDALL=( $(ls -d $CLOUD_ROOT/*/) )
+mapfile -t CLOUDALL < <(ls -d "$CLOUD_ROOT"/*/ 2>/dev/null)
+readonly -a CLOUDALL
 
 #
 # Note: PID files:
@@ -78,7 +79,7 @@ function cloud-definitions () {
 function check_new_cloudname () {
     local name="$1"
     case "$name" in
-        *[[:space:]/]*) echo "Error: invalid CLOUDNAME '$name'" 
+        *[[:space:]/]*) echo "Error: invalid CLOUDNAME '$name'"
                         exit 31 ;;
         "") echo "Error: empty CLOUDNAME"
             exit 32 ;;
