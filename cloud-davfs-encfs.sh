@@ -78,15 +78,15 @@ function cloud-definitions () {
 function check_new_cloudname () {
     local name="$1"
     case "$name" in
-        *[[:space:]/]*) printf "Error: invalid CLOUDNAME '%s'\n" "$name"
+        *[[:space:]/]*) echo "Error: invalid CLOUDNAME '$name'" 
                         exit 31 ;;
-        "") printf "Error: empty CLOUDNAME\n"
+        "") echo "Error: empty CLOUDNAME"
             exit 32 ;;
         *)
     esac
 
     if ! in_cloudall "$name" ; then
-        printf "Error: CLOUDNAME '%s' already exists\n" "$name"
+        printf 'Error: CLOUDNAME '\''%s'\'' already exists\n' "$name"
         exit 33
     fi
 }
@@ -95,7 +95,7 @@ function cloud-list () {
     local d
     for d in "${CLOUDALL[@]}"
     do
-        echo $(basename "$d")
+        basename "$d"
     done
 }
 
@@ -136,7 +136,7 @@ function read-conf-file () {
     if [ -r "$fconf" ] ; then
         . "$fconf"
     else
-        printf "Error: can not read file '%s'\n" "$fconf"
+        echo "Error: can not read file '$fconf'"
         exit 3
     fi
 
@@ -146,14 +146,14 @@ function read-conf-file () {
     # identifier mismatch
     if [[ -n "$cloudn" && "$CLOUDNAME" != "$cloudn" ]] ; then
         echo   "Error: identifier mismatch"
-        printf "       '%s' given as argument\n"   "$cloudn"
-        printf "       '%s' read in config file\n" "$CLOUDNAME"
+        printf '       '\''%s'\'' given as argument\n'   "$cloudn"
+        printf '       '\''%s'\'' read in config file\n' "$CLOUDNAME"
         exit 20
     fi
     # paths not set
     if [[ -z "$WEBDAV_REMOTE_PATH" || -z "$CLOUDNAME" ]] ; then
         echo "Error: something wrong with definitions"
-        printf "    File: %s\n, WEBDAV_REMOTE_PATH: %s\nCLOUDNAME: %s\n" \
+        printf '    File: %s\n, WEBDAV_REMOTE_PATH: %s\nCLOUDNAME: %s\n' \
                "$fconf" "$WEBDAV_REMOTE_PATH" "$CLOUDNAME"
         exit 21
     fi
@@ -163,17 +163,17 @@ function read-conf-file () {
 # add line to /etc/fstab
 function davfs-fstab-add () {
     if mountpoint -q "$WEBDAV_MPOINT" ; then
-        printf "Error: '%s' is already used and mounted\n" "$WEBDAV_MPOINT"
+        printf 'Error: '\''%s'\'' is already used and mounted\n' "$WEBDAV_MPOINT"
         exit 26
     fi
     if grep -q "$WEBDAV_MPOINT" $ETCFSTAB ; then
-        printf "*Warning*: '%s' is already listed in %s.\n" "$WEBDAV_MPOINT" $ETCFSTAB
+        printf '*Warning*: '\''%s'\'' is already listed in %s.\n' "$WEBDAV_MPOINT" $ETCFSTAB
         echo   "           Check the entry for errors and remove if needed."
         echo   "           If removed, rerun the create action."
     elif echo "$FSTAB_TXT" | sudo tee -a $ETCFSTAB > /dev/null ; then
         echo "Created davfs entry to $ETCFSTAB"
     else
-        printf "Error: failed to append davfs entry to %s\n" $ETCFSTAB
+        echo "Error: failed to append davfs entry to $ETCFSTAB"
         exit 27
     fi
 }
@@ -207,7 +207,7 @@ function cloud-create () {
         exit 24
     fi
     cp -av "$createfile" "$CONF_FILE_PATH" ||
-        printf "WEBDAV_REMOTE_PATH=%s\nCLOUDNAME=%s\n" \
+        printf 'WEBDAV_REMOTE_PATH=%s\nCLOUDNAME=%s\n' \
                "$WEBDAV_REMOTE_PATH" "$CLOUDNAME"  > "$CONF_FILE_PATH"  ||
         { echo "Error: could not create config file '$CONF_FILE_PATH'" &&
               exit 25 ; }
@@ -222,7 +222,7 @@ function cloud-create () {
 #
 function cloud-mount-webdav () {
     if [ ! -d "$WEBDAV_MPOINT" ] ; then
-        printf "Error: webdav mount point '%s' not found\n" "$WEBDAV_MPOINT"
+        printf 'Error: webdav mount point '%s' not found\n' "$WEBDAV_MPOINT"
         exit 9
     fi
     if mountpoint -q "$WEBDAV_MPOINT" ; then
@@ -232,20 +232,20 @@ function cloud-mount-webdav () {
         grep -q "$WEBDAV_MPOINT" $ETCFSTAB ||
             { echo "$FSTAB_TXT" | sudo tee -a $ETCFSTAB > /dev/null ; } ||
             { echo "Error: failed to append $ETCFSTAB entry" ; exit 27 ; }
-        printf "Added '%s' line to %s (%d)\n" $CLOUDNAME  $ETCFSTAB $?
+        printf 'Added '%s' line to %s (%d)\n' $CLOUDNAME  $ETCFSTAB $?
     fi
 
     # do the mount
     mount "$WEBDAV_MPOINT" ||
         { echo "Error: failed to mount webdav for $CLOUDNAME" ; exit 31 ; }
-    printf  "webdav-%s mounted\n" $CLOUDNAME
+    printf  'webdav-%s mounted\n' $CLOUDNAME
 }
 
 function cloud-umount-webdav () {
     mountpoint -q "$WEBDAV_MPOINT" &&
         umount    "$WEBDAV_MPOINT" &&
-        printf "webdav-%s unmounted\n" $CLOUDNAME ||
-            { printf "Error: failed to un-mount webdav-%s\n      %s\n" \
+        printf 'webdav-%s unmounted\n' $CLOUDNAME ||
+            { printf 'Error: failed to un-mount webdav-%s\n      %s\n' \
                      "$CLOUDNAME" "$WEBDAV_MPOINT"
               exit 35 ; }
 }
@@ -257,7 +257,7 @@ function cloud-mount-encfs () {
     for d in "$DIR_CLOUD_ENC" "$DIR_CLOUD_ENC_MP"
     do
         if [ ! -d "$d" ] ; then
-           printf "Error: encfs directory '%s' not found\n" "$d"
+           printf 'Error: encfs directory '\''%s'\'' not found\n' "$d"
            exit 9
         fi
     done
@@ -265,11 +265,11 @@ function cloud-mount-encfs () {
     # is it mounted ?
     if ! mountpoint -q "$DIR_CLOUD_ENC_MP" ; then
         encfs "$DIR_CLOUD_ENC" "$DIR_CLOUD_ENC_MP" ||
-            { printf "Error: failed to mount encfs '%s' to:\n    '%s'\n" \
+            { printf 'Error: failed to mount encfs '\''%s'\'' to:\n    '\''%s'\''\n' \
                      "$DIR_CLOUD_ENC" "$DIR_CLOUD_ENC_MP"
               exit 33 ; }
     fi
-    printf "encfs-%s mounted\n" $CLOUDNAME
+    printf 'encfs-%s mounted\n' $CLOUDNAME
 }
 
 function cloud-umount-encfs  () {
@@ -278,7 +278,7 @@ function cloud-umount-encfs  () {
     mountpoint -q "$mp"     &&
         fusermount -u "$mp" &&
         echo "encfs-$CLOUDNAME stopped"   ||
-            { printf "Error: encfs-%s failed to un-mount\n      %s\n" \
+            { printf 'Error: encfs-%s failed to un-mount\n      %s\n' \
                     "$CLOUDNAME" "$mp"
              exit 34 ; }
 }
@@ -326,18 +326,18 @@ function cloud-stop () {
 
 function cloud-status-webdav () {
     if mountpoint -q "$WEBDAV_MPOINT" ; then
-        printf "webdav-%s mounted\n" $CLOUDNAME
+        printf 'webdav-%s mounted\n' $CLOUDNAME
     else
-        printf "webdav-%s NOT mounted\n" $CLOUDNAME
+        printf 'webdav-%s NOT mounted\n' $CLOUDNAME
         return 1
     fi
 }
 
 function cloud-status-encfs () {
     if mountpoint -q "$DIR_CLOUD_ENC_MP" ; then
-        printf "encfs-%s mounted\n" $CLOUDNAME
+        printf 'encfs-%s mounted\n' $CLOUDNAME
     else
-        printf "encfs-%s NOT mounted\n" $CLOUDNAME
+        printf 'encfs-%s NOT mounted\n' $CLOUDNAME
         return 1
     fi
 }
@@ -349,12 +349,12 @@ function cloud-status () {
 
 function cloud-sync () {
     if ! cloud-status-encfs ; then
-        printf "Error: can not sync %s\n" $CLOUDNAME
+        echo "Error: can not sync $CLOUDNAME"
         exit 36
     fi
 
     if [ -z "$SYNC_CMD" ] ; then
-        printf "Error: sync command not defined '%s'\n" "$SYNC_CMD"
+        echo "Error: sync command not defined '$SYNC_CMD'"
         exit 41
     fi
 
@@ -365,7 +365,7 @@ function cloud-config-show () {
     if [ -f "$CONF_FILE_PATH" ] ; then
         cat "$CONF_FILE_PATH"
     else
-        printf "Error: missing config file '%s'\n" "$CONF_FILE_PATH"
+        echo "Error: missing config file '$CONF_FILE_PATH'"
         exit 38
     fi
 }
